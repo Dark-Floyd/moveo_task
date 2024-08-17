@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import connectDB from './config/db';
 import { logger } from './utils/logger';
 import authRoutes from './routes/authRoutes';
+import projectRoutes from './routes/projectRoutes';
+import { authMiddleware } from './middleware/authMiddleware';
 
 // Connect to the database
 connectDB();
@@ -15,6 +17,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
+// app.use(authMiddleware); // Apply authentication middleware globally if needed
 
 // Set up morgan to use the winston logger
 app.use(morgan('combined', {
@@ -24,7 +27,9 @@ app.use(morgan('combined', {
 }));
 
 // Routes
+
 app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes); // Project routes
 
 const PORT = process.env.PORT || 5000;
 

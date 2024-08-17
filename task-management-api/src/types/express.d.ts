@@ -1,8 +1,8 @@
 // src/types/express.d.ts
-import { Request } from 'express';
+import { IUser } from '../models/user'; // Adjust the path as needed
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: any; // You can replace `any` with a more specific type if you know what `user` will contain
+    user?: IUser; // Add the user property to the Request interface
   }
 }
