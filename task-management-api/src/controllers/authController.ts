@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import {
   AuthenticationDetails,
   CognitoUser,
   CognitoUserPool,
 } from 'amazon-cognito-identity-js';
 import jwt from 'jsonwebtoken';
-import User from '../models/user'; // Ensure this path is correct
+import User, { IUser } from '../models/user';
 
 const poolData = {
   UserPoolId: process.env.AWS_COGNITO_USER_POOL_ID!,
@@ -14,6 +14,7 @@ const poolData = {
 
 const userPool = new CognitoUserPool(poolData);
 
+// Assuming we may use a different approach instead of cognito
 export const register = async (req: Request, res: Response) => {
   const { username, password, email } = req.body;
 
@@ -83,14 +84,11 @@ export const login = async (req: Request, res: Response) => {
           const idToken = result.getIdToken().getJwtToken();
           const decoded = jwt.decode(idToken) as jwt.JwtPayload;
 
-          // Extract Cognito ID (sub) from the token
           const cognitoId = decoded.sub;
           const email = decoded.email;
 
-          // Check if the user already exists in MongoDB
           let user = await User.findOne({ cognitoId });
 
-          // If user doesn't exist, create a new one
           if (!user) {
             user = new User({
               cognitoId,
@@ -108,4 +106,20 @@ export const login = async (req: Request, res: Response) => {
       });
     },
   });
+};
+
+export const checkRole = (requiredRole: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as IUser;
+
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (user.role !== requiredRole) {
+      return res.status(403).json({ error: 'Forbidden: Insufficient role' });
+    }
+
+    next();
+  };
 };

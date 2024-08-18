@@ -5,7 +5,7 @@
     
     /* Visit https://aka.ms/tsconfig to read more about this file */
     "typeRoots": ["./node_modules/@types", "./src/types"],
-    "types": ["node", "express"],
+    "types": ["node", "express","jest"],
     
     /* Projects */
     // "incremental": true,                              /* Save .tsbuildinfo files to allow for incremental compilation of projects. */

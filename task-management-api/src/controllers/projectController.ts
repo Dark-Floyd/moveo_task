@@ -3,23 +3,23 @@ import Project from '../models/project';
 
 // Create a new project
 export const createProject = async (req: Request, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  const { name, description } = req.body;
-
   try {
+    if (!req.user) {
+      
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const { name, description } = req.body;
     const project = new Project({
       name,
       description,
-      createdBy: req.user._id, // Ensure req.user._id is set correctly
+      createdBy: req.user._id,
     });
-    
-    await project.save();
-    res.status(201).json(project);
+    const savedProject = await project.save();
+   
+    return res.status(201).json(savedProject);
   } catch (err) {
-    next(err); // Pass the error to the centralized error handler
+    console.error('Error in createProject:', err);
+    next(err); // Pass the error to the global error handler
   }
 };
 
@@ -28,7 +28,7 @@ export const getProjects = async (req: Request, res: Response, next: NextFunctio
   if (!req.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  
+
   const userId = req.user._id;
   try {
     const projects = await Project.find({ createdBy: userId });

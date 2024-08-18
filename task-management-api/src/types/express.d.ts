@@ -1,4 +1,3 @@
-// src/types/express.d.ts
 import { IUser } from '../models/user'; // Adjust the path as needed
 
 declare module 'express-serve-static-core' {
